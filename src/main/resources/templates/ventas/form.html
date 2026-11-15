@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Registrar venta')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('ventas')}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div><h1>Registrar venta</h1><p>Solo se pueden vender vehículos disponibles.</p></div>
+    </div>
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('${datos.*}')}">Revise los campos marcados en rojo.</div>
+    <div class="alert alert-warning" th:if="${disponibles.isEmpty() or clientes.isEmpty() or vendedores.isEmpty()}">
+      Para vender se necesita al menos un vehículo disponible, un cliente activo y un vendedor activo.
+    </div>
+
+    <form class="panel" method="post" th:object="${datos}" th:action="@{/ventas}">
+      <input type="hidden" th:field="*{clave}">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="vehiculoId">Vehículo *</label>
+          <select class="form-select" id="vehiculoId" th:field="*{vehiculoId}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="v : ${disponibles}" th:value="${v.id}" th:attr="data-precio=${v.precio}"
+                    th:text="${v.titulo} + ' · $ ' + ${#numbers.formatDecimal(v.precio, 1, 'POINT', 2, 'COMMA')}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{vehiculoId}"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="clienteId">Cliente *</label>
+          <select class="form-select" id="clienteId" th:field="*{clienteId}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombreCompleto} + ' · DNI ' + ${c.dni}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{clienteId}"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="vendedorId">Vendedor *</label>
+          <select class="form-select" id="vendedorId" th:field="*{vendedorId}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="s : ${vendedores}" th:value="${s.id}" th:text="${s.nombreCompleto} + ' · legajo ' + ${s.legajo}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{vendedorId}"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="precioVenta">Precio de venta ($) *</label>
+          <input class="form-control" type="number" step="0.01" min="0.01" id="precioVenta" th:field="*{precioVenta}" th:errorclass="is-invalid">
+          <div class="invalid-feedback" th:errors="*{precioVenta}"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="modalidadPago">Modalidad de pago *</label>
+          <select class="form-select" id="modalidadPago" th:field="*{modalidadPago}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="m : ${modalidades}" th:value="${m}" th:text="${m.etiqueta}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{modalidadPago}"></div>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-sigc" type="submit" id="confirmar">Confirmar venta</button>
+        <a class="btn btn-outline-sigc" th:href="@{/ventas}">Cancelar</a>
+      </div>
+    </form>
+  </main>
+</div>
+<script>
+  // Sugiere el precio de lista al elegir vehiculo; el servidor valida todo de nuevo.
+  (function () {
+    var veh = document.getElementById('vehiculoId'), precio = document.getElementById('precioVenta');
+    veh.addEventListener('change', function () {
+      var o = veh.options[veh.selectedIndex];
+      if (o && o.dataset.precio) precio.value = o.dataset.precio;
+    });
+    // Evita doble clic: el reenvio ademas es inofensivo por la clave de operacion.
+    document.querySelector('form').addEventListener('submit', function () {
+      document.getElementById('confirmar').disabled = true;
+    });
+  })();
+</script>
+</body>
+</html>

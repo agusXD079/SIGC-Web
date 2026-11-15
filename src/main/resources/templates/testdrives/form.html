@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Iniciar test drive')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('testdrives')}"></aside>
+  <main class="contenido">
+    <div class="encabezado"><div><h1>Iniciar test drive</h1><p>El vehículo quedará "En test drive" hasta que se finalice.</p></div></div>
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('${datos.*}')}">Revise los campos marcados en rojo.</div>
+    <div class="alert alert-warning" th:if="${disponibles.isEmpty() or clientes.isEmpty()}">
+      Se necesita al menos un vehículo disponible y un cliente activo.
+    </div>
+    <form class="panel" method="post" th:object="${datos}" th:action="@{/testdrives}">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="vehiculoId">Vehículo *</label>
+          <select class="form-select" id="vehiculoId" th:field="*{vehiculoId}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="v : ${disponibles}" th:value="${v.id}" th:text="${v.titulo}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{vehiculoId}"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="clienteId">Cliente *</label>
+          <select class="form-select" id="clienteId" th:field="*{clienteId}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombreCompleto} + ' · DNI ' + ${c.dni}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{clienteId}"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="vendedorId">Vendedor que acompaña (opcional)</label>
+          <select class="form-select" id="vendedorId" th:field="*{vendedorId}">
+            <option value="">Sin vendedor</option>
+            <option th:each="s : ${vendedores}" th:value="${s.id}" th:text="${s.nombreCompleto}"></option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="observaciones">Observaciones</label>
+          <textarea class="form-control" id="observaciones" rows="2" th:field="*{observaciones}" th:errorclass="is-invalid" maxlength="300"></textarea>
+          <div class="invalid-feedback" th:errors="*{observaciones}"></div>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-sigc" type="submit">Iniciar test drive</button>
+        <a class="btn btn-outline-sigc" th:href="@{/testdrives}">Cancelar</a>
+      </div>
+    </form>
+  </main>
+</div>
+</body>
+</html>

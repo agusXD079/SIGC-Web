@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Error')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('')}"></aside>
+  <main class="contenido">
+    <div class="panel" style="max-width: 640px">
+      <h1 class="h4" th:text="${titulo} ?: 'Algo salió mal'">Algo salió mal</h1>
+      <p class="text-secondary mb-4"
+         th:text="${mensaje} ?: 'La página solicitada no existe o no pudo mostrarse.'">Mensaje</p>
+      <a class="btn btn-sigc" th:href="@{/}">Volver al inicio</a>
+      <a class="btn btn-outline-sigc" href="javascript:history.back()">Volver atrás</a>
+    </div>
+  </main>
+</div>
+</body>
+</html>

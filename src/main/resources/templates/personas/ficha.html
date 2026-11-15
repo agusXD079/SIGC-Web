@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera(${historial.persona().nombreCompleto})}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu(${modulo})}"></aside>
+  <main class="contenido" th:with="p=${historial.persona()}">
+    <div class="encabezado">
+      <div>
+        <h1 th:text="${p.nombreCompleto}">Nombre</h1>
+        <p>
+          <span class="estado" th:classappend="${p.activo} ? 'estado-DISPONIBLE' : 'estado-BAJA'" th:text="${p.activo} ? 'Activo' : 'De baja'"></span>
+          <span class="ms-2" th:text="'DNI ' + ${p.dni}"></span>
+        </p>
+      </div>
+      <div class="d-flex flex-wrap gap-2 no-imprimir">
+        <a class="btn btn-outline-sigc" th:href="@{/{m}(m=${modulo})}">Volver al listado</a>
+        <a class="btn btn-sigc" th:href="@{/{m}/{id}/editar(m=${modulo},id=${p.id})}">Editar</a>
+        <form method="post" th:if="${p.activo}" th:action="@{/{m}/{id}/baja(m=${modulo},id=${p.id})}"
+              onsubmit="return confirm('¿Dar de baja? El historial se conserva.');">
+          <button class="btn btn-outline-danger" type="submit">Dar de baja</button>
+        </form>
+        <form method="post" th:if="${!p.activo}" th:action="@{/{m}/{id}/reactivar(m=${modulo},id=${p.id})}">
+          <button class="btn btn-outline-success" type="submit">Reactivar</button>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-lg-5">
+        <div class="panel h-100">
+          <h2>Datos</h2>
+          <div class="dato"><span>DNI</span><span th:text="${p.dni}"></span></div>
+          <div class="dato" th:if="${esVendedor}"><span>Legajo</span><span th:text="${p.legajo}"></span></div>
+          <div class="dato" th:if="${!esVendedor}"><span>Alta</span><span th:text="${#temporals.format(p.fechaAlta, 'dd/MM/yyyy')}"></span></div>
+          <div class="dato"><span>Teléfono</span><span th:text="${p.telefono}"></span></div>
+          <div class="dato"><span>Correo</span><span th:text="${p.email}"></span></div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="row g-3">
+          <div class="col-4"><div class="kpi" style="--kpi-color:#12805c"><div class="rotulo" th:text="${esVendedor} ? 'Ventas' : 'Compras'">Compras</div><div class="valor" th:text="${historial.ventas().size()}">0</div></div></div>
+          <div class="col-4"><div class="kpi" style="--kpi-color:#b7791f"><div class="rotulo">Test drives</div><div class="valor" th:text="${historial.testDrives().size()}">0</div></div></div>
+          <div class="col-4"><div class="kpi" style="--kpi-color:#15191f"><div class="rotulo">Monto total</div><div class="valor fs-5" th:text="'$ ' + ${#numbers.formatDecimal(historial.montoTotal(), 1, 'POINT', 2, 'COMMA')}">$ 0</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel p-0 table-responsive mb-3">
+      <h2 class="p-3 pb-0" th:text="${esVendedor} ? 'Ventas realizadas' : 'Compras'">Compras</h2>
+      <table class="table tabla-sigc">
+        <thead><tr><th>Comprobante</th><th>Fecha</th><th>Vehículo</th><th th:text="${esVendedor} ? 'Cliente' : 'Vendedor'"></th><th>Pago</th><th class="text-end">Precio</th></tr></thead>
+        <tbody>
+          <tr th:each="v : ${historial.ventas()}">
+            <td><a th:href="@{/ventas/{id}(id=${v.id})}" th:text="${v.numeroComprobante}"></a></td>
+            <td th:text="${#temporals.format(v.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+            <td><a th:href="@{/vehiculos/{id}(id=${v.vehiculo.id})}" th:text="${v.vehiculo.titulo}"></a></td>
+            <td th:text="${esVendedor} ? ${v.cliente.nombreCompleto} : ${v.vendedor.nombreCompleto}"></td>
+            <td th:text="${v.modalidadPago.etiqueta}"></td>
+            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(v.precioVenta, 1, 'POINT', 2, 'COMMA')}"></td>
+          </tr>
+          <tr th:if="${historial.ventas().isEmpty()}"><td colspan="6" class="text-center text-secondary py-3">Sin operaciones.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel p-0 table-responsive">
+      <h2 class="p-3 pb-0">Pruebas de manejo</h2>
+      <table class="table tabla-sigc">
+        <thead><tr><th>Inicio</th><th>Fin</th><th>Vehículo</th><th th:text="${esVendedor} ? 'Cliente' : 'Acompañó'"></th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr th:each="t : ${historial.testDrives()}">
+            <td th:text="${#temporals.format(t.fechaInicio, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${t.fechaFin != null} ? ${#temporals.format(t.fechaFin, 'dd/MM/yyyy HH:mm')} : '—'"></td>
+            <td><a th:href="@{/vehiculos/{id}(id=${t.vehiculo.id})}" th:text="${t.vehiculo.titulo}"></a></td>
+            <td th:text="${esVendedor} ? ${t.cliente.nombreCompleto} : (${t.vendedor != null} ? ${t.vendedor.nombreCompleto} : '—')"></td>
+            <td th:text="${t.estado.etiqueta}"></td>
+          </tr>
+          <tr th:if="${historial.testDrives().isEmpty()}"><td colspan="5" class="text-center text-secondary py-3">Sin pruebas de manejo.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</body>
+</html>

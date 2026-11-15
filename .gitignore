@@ -1,0 +1,28 @@
+# Maven
+target/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+nbproject/
+
+# Credenciales y configuracion local: NUNCA versionar
+.env
+*.local.properties
+application-local.properties
+
+# Fotos subidas por los usuarios (carpeta configurable SIGC_FOTOS_DIR)
+fotos/
+uploads/
+
+# Compilados y datos del proyecto de consola original
+legacy/consola/bin/
+*.class
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera(${existente != null ? 'Editar vehículo' : 'Nuevo vehículo'})}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('vehiculos')}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div>
+        <h1 th:text="${existente != null} ? 'Editar vehículo' : 'Registrar vehículo'">Registrar vehículo</h1>
+        <p th:if="${existente != null}" th:text="${existente.titulo}"></p>
+        <p th:if="${existente == null}">Complete los datos; los campos con * son obligatorios.</p>
+      </div>
+    </div>
+
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('${datos.*}')}">
+      Revise los campos marcados en rojo.
+    </div>
+
+    <form class="panel" method="post" enctype="multipart/form-data" th:object="${datos}"
+          th:action="${existente != null} ? @{/vehiculos/{id}(id=${existente.id})} : @{/vehiculos}">
+      <div class="row g-3">
+        <!-- Tipo: solo editable al crear. Al editar viaja oculto. -->
+        <div class="col-md-4" th:if="${existente == null}">
+          <label class="form-label" for="tipo">Tipo de vehículo *</label>
+          <select class="form-select" id="tipo" th:field="*{tipo}" th:errorclass="is-invalid">
+            <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.etiqueta}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{tipo}"></div>
+        </div>
+        <input type="hidden" th:if="${existente != null}" name="tipo" th:value="${datos.tipo}">
+
+        <div class="col-md-4">
+          <label class="form-label" for="marca">Marca *</label>
+          <input class="form-control" id="marca" th:field="*{marca}" th:errorclass="is-invalid" maxlength="60">
+          <div class="invalid-feedback" th:errors="*{marca}"></div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="modelo">Modelo *</label>
+          <input class="form-control" id="modelo" th:field="*{modelo}" th:errorclass="is-invalid" maxlength="80">
+          <div class="invalid-feedback" th:errors="*{modelo}"></div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="versionModelo">Versión</label>
+          <input class="form-control" id="versionModelo" th:field="*{versionModelo}" th:errorclass="is-invalid" maxlength="80">
+          <div class="invalid-feedback" th:errors="*{versionModelo}"></div>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label" for="anio">Año *</label>
+          <input class="form-control" type="number" id="anio" th:field="*{anio}" th:errorclass="is-invalid" min="1950">
+          <div class="invalid-feedback" th:errors="*{anio}"></div>
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label" for="kilometraje">Kilometraje *</label>
+          <input class="form-control" type="number" id="kilometraje" th:field="*{kilometraje}" th:errorclass="is-invalid" min="0">
+          <div class="invalid-feedback" th:errors="*{kilometraje}"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="precio">Precio de lista ($) *</label>
+          <input class="form-control" type="number" step="0.01" min="0.01" id="precio" th:field="*{precio}" th:errorclass="is-invalid">
+          <div class="invalid-feedback" th:errors="*{precio}"></div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="color">Color</label>
+          <input class="form-control" id="color" th:field="*{color}" th:errorclass="is-invalid" maxlength="40">
+          <div class="invalid-feedback" th:errors="*{color}"></div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="combustible">Combustible *</label>
+          <select class="form-select" id="combustible" th:field="*{combustible}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="c : ${combustibles}" th:value="${c}" th:text="${c.etiqueta}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{combustible}"></div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="transmision">Transmisión *</label>
+          <select class="form-select" id="transmision" th:field="*{transmision}" th:errorclass="is-invalid">
+            <option value="">Elegir…</option>
+            <option th:each="t : ${transmisiones}" th:value="${t}" th:text="${t.etiqueta}"></option>
+          </select>
+          <div class="invalid-feedback" th:errors="*{transmision}"></div>
+        </div>
+
+        <!-- Datos propios de cada tipo -->
+        <div class="col-12 seccion-tipo" data-tipo="AUTO">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="puertas">Puertas *</label>
+              <input class="form-control" type="number" id="puertas" th:field="*{puertas}" th:errorclass="is-invalid" min="2" max="6">
+              <div class="invalid-feedback" th:errors="*{puertas}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 seccion-tipo" data-tipo="MOTO">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="tipoMoto">Tipo de moto *</label>
+              <select class="form-select" id="tipoMoto" th:field="*{tipoMoto}" th:errorclass="is-invalid">
+                <option value="">Elegir…</option>
+                <option th:each="m : ${tiposMoto}" th:value="${m}" th:text="${m.etiqueta}"></option>
+              </select>
+              <div class="invalid-feedback" th:errors="*{tipoMoto}"></div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="cilindrada">Cilindrada (cc) *</label>
+              <input class="form-control" type="number" id="cilindrada" th:field="*{cilindrada}" th:errorclass="is-invalid" min="50" max="3000">
+              <div class="invalid-feedback" th:errors="*{cilindrada}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 seccion-tipo" data-tipo="CAMION">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="capacidadCargaTn">Capacidad de carga (tn) *</label>
+              <input class="form-control" type="number" step="0.01" min="0.01" id="capacidadCargaTn" th:field="*{capacidadCargaTn}" th:errorclass="is-invalid">
+              <div class="invalid-feedback" th:errors="*{capacidadCargaTn}"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label" for="descripcion">Descripción</label>
+          <textarea class="form-control" id="descripcion" rows="3" th:field="*{descripcion}" th:errorclass="is-invalid" maxlength="1000"></textarea>
+          <div class="invalid-feedback" th:errors="*{descripcion}"></div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="foto">Fotografía (JPG, PNG o WebP, hasta 3 MB)</label>
+          <input class="form-control" type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp">
+          <div class="form-check mt-2" th:if="${existente != null and existente.foto != null}">
+            <input class="form-check-input" type="checkbox" id="quitarFoto" name="quitarFoto" value="true">
+            <label class="form-check-label" for="quitarFoto">Quitar la foto actual</label>
+          </div>
+        </div>
+        <div class="col-md-6" th:if="${existente != null and existente.foto != null}">
+          <div class="small text-secondary mb-1">Foto actual</div>
+          <img class="miniatura" style="width:160px;height:100px" th:src="@{/fotos/{n}(n=${existente.foto})}" alt="Foto actual">
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-sigc" type="submit" th:text="${existente != null} ? 'Guardar cambios' : 'Registrar vehículo'">Guardar</button>
+        <a class="btn btn-outline-sigc" th:href="${existente != null} ? @{/vehiculos/{id}(id=${existente.id})} : @{/vehiculos}">Cancelar</a>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script>
+  // Muestra solo los campos del tipo elegido; el servidor vuelve a validar todo.
+  (function () {
+    var selector = document.getElementById('tipo');
+    var oculto = document.querySelector('input[type=hidden][name=tipo]');
+    function actualizar() {
+      var tipo = selector ? selector.value : (oculto ? oculto.value : 'AUTO');
+      document.querySelectorAll('.seccion-tipo').forEach(function (s) {
+        var visible = s.getAttribute('data-tipo') === tipo;
+        s.classList.toggle('visible', visible);
+        s.querySelectorAll('input,select').forEach(function (c) { c.disabled = !visible; });
+      });
+    }
+    if (selector) selector.addEventListener('change', actualizar);
+    actualizar();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Dashboard')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('inicio')}"></aside>
+  <main class="contenido" th:with="resumen=${panel.inventario()}">
+    <div class="encabezado">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Estado actual de la concesionaria, con datos de la base.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-sigc" th:href="@{/ventas/nueva}">Registrar venta</a>
+        <a class="btn btn-outline-sigc" th:href="@{/vehiculos/nuevo}">Registrar vehículo</a>
+        <a class="btn btn-outline-sigc" th:href="@{/inventario}">Ver inventario</a>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-xl-3">
+        <div class="kpi" style="--kpi-color:#15191f">
+          <div class="rotulo">Total de vehículos</div>
+          <div class="valor" th:text="${resumen.total()}">0</div>
+          <div class="nota">Activos en el sistema</div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="kpi" style="--kpi-color:#12805c">
+          <div class="rotulo">Disponibles</div>
+          <div class="valor" th:text="${resumen.disponibles()}">0</div>
+          <div class="nota"><a th:href="@{/inventario(estado='DISPONIBLE')}">Ver listado</a></div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="kpi" style="--kpi-color:#667085">
+          <div class="rotulo">Vendidos</div>
+          <div class="valor" th:text="${resumen.vendidos()}">0</div>
+          <div class="nota"><a th:href="@{/inventario(estado='VENDIDO')}">Ver listado</a></div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="kpi" style="--kpi-color:#b7791f">
+          <div class="rotulo">En test drive</div>
+          <div class="valor" th:text="${resumen.enTestDrive()}">0</div>
+          <div class="nota"><a th:href="@{/inventario(estado='EN_TEST_DRIVE')}">Ver listado</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-xl-3"><div class="kpi" style="--kpi-color:#15191f"><div class="rotulo">Clientes activos</div><div class="valor" th:text="${panel.clientes()}">0</div><div class="nota"><a th:href="@{/clientes}">Ver clientes</a></div></div></div>
+      <div class="col-6 col-xl-3"><div class="kpi" style="--kpi-color:#15191f"><div class="rotulo">Vendedores activos</div><div class="valor" th:text="${panel.vendedores()}">0</div><div class="nota"><a th:href="@{/vendedores}">Ver vendedores</a></div></div></div>
+      <div class="col-6 col-xl-3"><div class="kpi" style="--kpi-color:#ff6a1a"><div class="rotulo">Ventas realizadas</div><div class="valor" th:text="${panel.ventas()}">0</div><div class="nota"><a th:href="@{/ventas}">Ver ventas</a></div></div></div>
+      <div class="col-6 col-xl-3"><div class="kpi" style="--kpi-color:#ff6a1a"><div class="rotulo">Monto vendido</div><div class="valor fs-4" th:text="'$ ' + ${#numbers.formatDecimal(panel.montoVentas(), 1, 'POINT', 2, 'COMMA')}">$ 0</div><div class="nota" th:text="${panel.testDrivesEnCurso()} + ' test drive(s) en curso'"></div></div></div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-lg-7">
+        <div class="panel h-100 p-0 table-responsive">
+          <h2 class="p-3 pb-0">Últimas operaciones</h2>
+          <table class="table tabla-sigc">
+            <thead><tr><th>Tipo</th><th>Fecha</th><th>Vehículo</th><th>Detalle</th></tr></thead>
+            <tbody>
+              <tr th:each="o : ${panel.ultimas()}">
+                <td><a th:href="@{${o.enlace()}}" th:text="${o.tipo()}"></a></td>
+                <td th:text="${#temporals.format(o.fecha(), 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${o.descripcion()}"></td>
+                <td th:text="${o.detalle()}"></td>
+              </tr>
+              <tr th:if="${panel.ultimas().isEmpty()}"><td colspan="4" class="text-center text-secondary py-3">Aún no hay operaciones.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="panel h-100">
+          <h2>Ventas por vendedor</h2>
+          <div th:replace="~{fragmentos :: barras(${panel.ultimosMeses().porVendedor()})}"></div>
+          <p class="small text-secondary mb-0">Últimos seis meses. <a th:href="@{/reportes}">Ver reportes</a></p>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="panel">
+          <h2>Ventas por mes (últimos seis meses)</h2>
+          <div th:replace="~{fragmentos :: barras(${panel.ultimosMeses().porPeriodo()})}"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-6">
+        <div class="panel h-100">
+          <h2>Precio de los vehículos disponibles</h2>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="text-secondary small text-uppercase fw-semibold">Precio promedio</div>
+              <div class="fs-3 fw-bold" th:text="'$ ' + ${#numbers.formatDecimal(resumen.precioPromedioDisponibles(), 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-secondary small text-uppercase fw-semibold">Valor del stock disponible</div>
+              <div class="fs-3 fw-bold" th:text="'$ ' + ${#numbers.formatDecimal(resumen.valorDisponibles(), 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="panel h-100">
+          <h2>Inventario por estado</h2>
+          <div class="barra-fila" style="--barra-color:#12805c">
+            <span>Disponibles</span>
+            <div class="barra-pista"><div class="barra-relleno" th:style="'width:' + ${resumen.porcentaje(resumen.disponibles())} + '%'"></div></div>
+            <span class="barra-valor" th:text="${resumen.disponibles()}">0</span>
+          </div>
+          <div class="barra-fila" style="--barra-color:#667085">
+            <span>Vendidos</span>
+            <div class="barra-pista"><div class="barra-relleno" th:style="'width:' + ${resumen.porcentaje(resumen.vendidos())} + '%'"></div></div>
+            <span class="barra-valor" th:text="${resumen.vendidos()}">0</span>
+          </div>
+          <div class="barra-fila" style="--barra-color:#b7791f">
+            <span>En test drive</span>
+            <div class="barra-pista"><div class="barra-relleno" th:style="'width:' + ${resumen.porcentaje(resumen.enTestDrive())} + '%'"></div></div>
+            <span class="barra-valor" th:text="${resumen.enTestDrive()}">0</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="panel">
+          <h2>Inventario por tipo de vehículo</h2>
+          <div class="barra-fila" th:each="t : ${resumen.porTipo()}">
+            <span th:text="${t.key}">Auto</span>
+            <div class="barra-pista"><div class="barra-relleno" th:style="'width:' + ${resumen.porcentaje(t.value)} + '%'"></div></div>
+            <span class="barra-valor" th:text="${t.value}">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

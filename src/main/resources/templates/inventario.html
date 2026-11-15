@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Inventario')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('inventario')}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div>
+        <h1>Inventario</h1>
+        <p>Vehículos activos, con su estado comercial.</p>
+      </div>
+      <a class="btn btn-sigc" th:href="@{/vehiculos/nuevo}">Registrar vehículo</a>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-lg-3"><div class="kpi" style="--kpi-color:#15191f"><div class="rotulo">Total</div><div class="valor" th:text="${resumen.total()}">0</div></div></div>
+      <div class="col-6 col-lg-3"><div class="kpi" style="--kpi-color:#12805c"><div class="rotulo">Disponibles</div><div class="valor" th:text="${resumen.disponibles()}">0</div></div></div>
+      <div class="col-6 col-lg-3"><div class="kpi" style="--kpi-color:#667085"><div class="rotulo">Vendidos</div><div class="valor" th:text="${resumen.vendidos()}">0</div></div></div>
+      <div class="col-6 col-lg-3"><div class="kpi"><div class="rotulo">Precio promedio disponible</div><div class="valor fs-4" th:text="'$ ' + ${#numbers.formatDecimal(resumen.precioPromedioDisponibles(), 1, 'POINT', 2, 'COMMA')}">$ 0,00</div></div></div>
+    </div>
+
+    <div class="panel mb-3">
+      <div class="chips">
+        <a th:href="@{/inventario(tipo=${filtro.tipo()}, orden=${filtro.orden()})}" th:classappend="${filtro.estado() == null} ? 'activo'">Todos</a>
+        <a th:each="e : ${estados}" th:href="@{/inventario(estado=${e}, tipo=${filtro.tipo()}, orden=${filtro.orden()})}"
+           th:classappend="${filtro.estado() == e} ? 'activo'" th:text="${e.etiqueta}"></a>
+      </div>
+      <div class="chips">
+        <a th:href="@{/inventario(estado=${filtro.estado()}, orden=${filtro.orden()})}" th:classappend="${filtro.tipo() == null} ? 'activo'">Todos los tipos</a>
+        <a th:each="t : ${tipos}" th:href="@{/inventario(estado=${filtro.estado()}, tipo=${t}, orden=${filtro.orden()})}"
+           th:classappend="${filtro.tipo() == t} ? 'activo'" th:text="${t.etiqueta}"></a>
+      </div>
+      <div class="chips mb-0">
+        <a th:href="@{/inventario(estado=${filtro.estado()}, tipo=${filtro.tipo()}, orden='PRECIO_ASC')}" th:classappend="${filtro.orden() == 'PRECIO_ASC'} ? 'activo'">Precio: menor a mayor</a>
+        <a th:href="@{/inventario(estado=${filtro.estado()}, tipo=${filtro.tipo()}, orden='PRECIO_DESC')}" th:classappend="${filtro.orden() == 'PRECIO_DESC'} ? 'activo'">Precio: mayor a menor</a>
+      </div>
+    </div>
+
+    <div class="panel text-center text-secondary" th:if="${#lists.isEmpty(vehiculos)}">No hay vehículos con ese criterio.</div>
+
+    <div class="panel p-0 table-responsive" th:if="${!#lists.isEmpty(vehiculos)}">
+      <table class="table table-hover tabla-sigc">
+        <thead>
+          <tr><th>Vehículo</th><th>Tipo</th><th>Año</th><th>Km</th><th>Precio</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="v : ${vehiculos}">
+            <td><a class="fw-semibold text-decoration-none" th:href="@{/vehiculos/{id}(id=${v.id})}" th:text="${v.titulo}">Marca Modelo</a></td>
+            <td th:text="${v.tipo}">Auto</td>
+            <td th:text="${v.anio}">2020</td>
+            <td th:text="${#numbers.formatInteger(v.kilometraje, 1, 'POINT')}">0</td>
+            <td class="fw-semibold" th:text="'$ ' + ${#numbers.formatDecimal(v.precio, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+            <td><span class="estado" th:classappend="'estado-' + ${v.estado}" th:text="${v.estado.etiqueta}"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</body>
+</html>

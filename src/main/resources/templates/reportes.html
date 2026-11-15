@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Reportes')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('reportes')}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div><h1>Reportes de ventas</h1><p>Calculados con las ventas registradas en la base de datos.</p></div>
+      <button class="btn btn-outline-sigc no-imprimir" type="button" onclick="window.print()">Imprimir</button>
+    </div>
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+
+    <form class="panel mb-3 row g-2 align-items-end no-imprimir" method="get" th:action="@{/reportes}">
+      <div class="col-md-3"><label class="form-label" for="desde">Desde</label><input class="form-control" type="date" id="desde" name="desde" th:value="${desde}"></div>
+      <div class="col-md-3"><label class="form-label" for="hasta">Hasta</label><input class="form-control" type="date" id="hasta" name="hasta" th:value="${hasta}"></div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-sigc" type="submit">Generar</button>
+        <a class="btn btn-outline-sigc" th:href="@{/reportes}">Todo el historial</a>
+      </div>
+    </form>
+
+    <div class="row g-3 mb-3">
+      <div class="col-6"><div class="kpi" style="--kpi-color:#12805c"><div class="rotulo">Ventas del período</div><div class="valor" th:text="${reporte.cantidad()}">0</div></div></div>
+      <div class="col-6"><div class="kpi" style="--kpi-color:#15191f"><div class="rotulo">Monto total</div><div class="valor fs-4" th:text="'$ ' + ${#numbers.formatDecimal(reporte.monto(), 1, 'POINT', 2, 'COMMA')}">$ 0</div></div></div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-6">
+        <div class="panel h-100">
+          <h2>Ventas por vendedor</h2>
+          <div th:replace="~{fragmentos :: barras(${reporte.porVendedor()})}"></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="panel h-100">
+          <h2>Ventas por tipo de vehículo</h2>
+          <div th:replace="~{fragmentos :: barras(${reporte.porTipo()})}"></div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="panel">
+          <h2>Ventas por mes</h2>
+          <div th:replace="~{fragmentos :: barras(${reporte.porPeriodo()})}"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

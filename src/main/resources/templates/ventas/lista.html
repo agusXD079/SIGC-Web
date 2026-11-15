@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Ventas')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('ventas')}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div><h1>Ventas</h1><p th:text="${ventas.size()} + ' venta(s) en el período filtrado'"></p></div>
+      <a class="btn btn-sigc" th:href="@{/ventas/nueva}">Registrar venta</a>
+    </div>
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+
+    <form class="panel mb-3 row g-2 align-items-end" method="get" th:action="@{/ventas}">
+      <div class="col-md-3">
+        <label class="form-label" for="clienteId">Cliente</label>
+        <select class="form-select" id="clienteId" name="clienteId">
+          <option value="">Todos</option>
+          <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombreCompleto}" th:selected="${clienteId != null and clienteId == c.id}"></option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="vendedorId">Vendedor</label>
+        <select class="form-select" id="vendedorId" name="vendedorId">
+          <option value="">Todos</option>
+          <option th:each="s : ${vendedores}" th:value="${s.id}" th:text="${s.nombreCompleto}" th:selected="${vendedorId != null and vendedorId == s.id}"></option>
+        </select>
+      </div>
+      <div class="col-md-2"><label class="form-label" for="desde">Desde</label><input class="form-control" type="date" id="desde" name="desde" th:value="${desde}"></div>
+      <div class="col-md-2"><label class="form-label" for="hasta">Hasta</label><input class="form-control" type="date" id="hasta" name="hasta" th:value="${hasta}"></div>
+      <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-sigc" type="submit">Filtrar</button>
+        <a class="btn btn-outline-sigc" th:href="@{/ventas}">Limpiar</a>
+      </div>
+    </form>
+
+    <div class="panel p-0 table-responsive">
+      <table class="table tabla-sigc">
+        <thead><tr><th>Comprobante</th><th>Fecha</th><th>Vehículo</th><th>Cliente</th><th>Vendedor</th><th>Pago</th><th class="text-end">Precio</th></tr></thead>
+        <tbody>
+          <tr th:each="v : ${ventas}">
+            <td><a th:href="@{/ventas/{id}(id=${v.id})}" th:text="${v.numeroComprobante}"></a></td>
+            <td th:text="${#temporals.format(v.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${v.vehiculo.titulo}"></td>
+            <td th:text="${v.cliente.nombreCompleto}"></td>
+            <td th:text="${v.vendedor.nombreCompleto}"></td>
+            <td th:text="${v.modalidadPago.etiqueta}"></td>
+            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(v.precioVenta, 1, 'POINT', 2, 'COMMA')}"></td>
+          </tr>
+          <tr th:if="${ventas.isEmpty()}"><td colspan="7" class="text-center text-secondary py-4">No hay ventas para mostrar.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+  <persistence-unit name="sigc" transaction-type="RESOURCE_LOCAL">
+    <provider>org.datanucleus.api.jdo.JDOPersistenceManagerFactory</provider>
+    <class>com.sigc.dominio.Vehiculo</class>
+    <class>com.sigc.dominio.Auto</class>
+    <class>com.sigc.dominio.Moto</class>
+    <class>com.sigc.dominio.Camion</class>
+    <class>com.sigc.dominio.Persona</class>
+    <class>com.sigc.dominio.Cliente</class>
+    <class>com.sigc.dominio.Vendedor</class>
+    <class>com.sigc.dominio.Venta</class>
+    <class>com.sigc.dominio.TestDrive</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="datanucleus.schema.autoCreateAll" value="true"/>
+      <property name="datanucleus.schema.generateDatabase.mode" value="create"/>
+      <property name="datanucleus.schema.validateAll" value="true"/>
+      <property name="datanucleus.transaction.isolation" value="read-committed"/>
+      <property name="datanucleus.cache.level2.type" value="none"/>
+      <property name="datanucleus.persistenceByReachabilityAtCommit" value="true"/>
+    </properties>
+  </persistence-unit>
+</persistence>

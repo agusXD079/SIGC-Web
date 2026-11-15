@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera(${v.titulo})}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('vehiculos')}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div>
+        <h1 th:text="${v.titulo}">Marca Modelo</h1>
+        <p>
+          <span class="estado" th:classappend="${v.activo} ? ('estado-' + ${v.estado}) : 'estado-BAJA'"
+                th:text="${v.activo} ? ${v.estado.etiqueta} : 'De baja'"></span>
+          <span class="ms-2" th:text="${v.tipo}">Auto</span>
+        </p>
+      </div>
+      <div class="d-flex flex-wrap gap-2 no-imprimir">
+        <a class="btn btn-outline-sigc" th:href="@{/vehiculos}">Volver al listado</a>
+        <a class="btn btn-sigc" th:if="${v.activo and v.estado.name() != 'VENDIDO'}" th:href="@{/vehiculos/{id}/editar(id=${v.id})}">Editar</a>
+        <a class="btn btn-sigc" th:if="${v.activo and v.estado.name() == 'DISPONIBLE'}" th:href="@{/ventas/nueva(vehiculoId=${v.id})}">Vender</a>
+        <a class="btn btn-outline-sigc" th:if="${v.activo and v.estado.name() == 'DISPONIBLE'}" th:href="@{/testdrives/nuevo(vehiculoId=${v.id})}">Test drive</a>
+        <form method="post" th:if="${v.activo and v.estado.name() == 'DISPONIBLE'}" th:action="@{/vehiculos/{id}/baja(id=${v.id})}"
+              onsubmit="return confirm('¿Dar de baja este vehículo? Dejará de aparecer en los listados.');">
+          <button class="btn btn-outline-danger" type="submit">Dar de baja</button>
+        </form>
+        <form method="post" th:if="${!v.activo}" th:action="@{/vehiculos/{id}/reactivar(id=${v.id})}">
+          <button class="btn btn-outline-success" type="submit">Reactivar</button>
+        </form>
+      </div>
+    </div>
+
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+
+    <div class="row g-3">
+      <div class="col-lg-6">
+        <div class="ficha-foto">
+          <img th:if="${v.foto != null}" th:src="@{/fotos/{n}(n=${v.foto})}" th:alt="${v.titulo}">
+          <th:block th:if="${v.foto == null}"><div th:replace="~{fragmentos :: sinFoto(${v.tipo})}"></div></th:block>
+        </div>
+        <div class="panel mt-3" th:if="${!#strings.isEmpty(v.descripcion)}">
+          <h2>Descripción</h2>
+          <p class="mb-0" style="white-space: pre-line" th:text="${v.descripcion}"></p>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="panel">
+          <div class="text-secondary small text-uppercase fw-semibold">Precio de lista</div>
+          <div class="display-6 fw-bold mb-3" th:text="'$ ' + ${#numbers.formatDecimal(v.precio, 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
+          <div class="dato"><span>Marca</span><span th:text="${v.marca}"></span></div>
+          <div class="dato"><span>Modelo</span><span th:text="${v.modelo}"></span></div>
+          <div class="dato" th:if="${!#strings.isEmpty(v.versionModelo)}"><span>Versión</span><span th:text="${v.versionModelo}"></span></div>
+          <div class="dato"><span>Año</span><span th:text="${v.anio}"></span></div>
+          <div class="dato"><span>Kilometraje</span><span th:text="${#numbers.formatInteger(v.kilometraje, 1, 'POINT')} + ' km'"></span></div>
+          <div class="dato" th:if="${!#strings.isEmpty(v.color)}"><span>Color</span><span th:text="${v.color}"></span></div>
+          <div class="dato"><span>Combustible</span><span th:text="${v.combustible.etiqueta}"></span></div>
+          <div class="dato"><span>Transmisión</span><span th:text="${v.transmision.etiqueta}"></span></div>
+          <div class="dato"><span>Características</span><span th:text="${v.detalleEspecifico}"></span></div>
+          <div class="dato"><span>Código interno</span><span th:text="'V' + ${#numbers.formatInteger(v.id, 5)}"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+      <div class="col-lg-6" th:if="${venta != null}">
+        <div class="panel h-100">
+          <h2>Venta</h2>
+          <div class="dato"><span>Comprobante</span><a th:href="@{/ventas/{id}(id=${venta.id})}" th:text="${venta.numeroComprobante}"></a></div>
+          <div class="dato"><span>Fecha</span><span th:text="${#temporals.format(venta.fechaHora, 'dd/MM/yyyy HH:mm')}"></span></div>
+          <div class="dato"><span>Cliente</span><a th:href="@{/clientes/{id}(id=${venta.cliente.id})}" th:text="${venta.cliente.nombreCompleto}"></a></div>
+          <div class="dato"><span>Vendedor</span><a th:href="@{/vendedores/{id}(id=${venta.vendedor.id})}" th:text="${venta.vendedor.nombreCompleto}"></a></div>
+          <div class="dato"><span>Precio</span><span th:text="'$ ' + ${#numbers.formatDecimal(venta.precioVenta, 1, 'POINT', 2, 'COMMA')}"></span></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="panel h-100">
+          <h2>Historial de test drives</h2>
+          <p class="text-secondary mb-0" th:if="${pruebas.isEmpty()}">Sin pruebas de manejo.</p>
+          <div class="dato" th:each="t : ${pruebas}">
+            <span th:text="${#temporals.format(t.fechaInicio, 'dd/MM/yyyy HH:mm')} + ' · ' + ${t.cliente.nombreCompleto}"></span>
+            <span th:text="${t.estado.etiqueta}"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

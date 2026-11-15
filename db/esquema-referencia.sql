@@ -1,0 +1,110 @@
+-- SIGC - Esquema de REFERENCIA (solo para leer y para el diagrama ER).
+-- La aplicacion NO ejecuta este archivo: DataNucleus crea las tablas al arrancar
+-- (datanucleus.schema.autoCreateAll). Los nombres reales de columnas pueden variar
+-- levemente; verificar con SHOW CREATE TABLE tras el primer arranque.
+-- Fases 2 y 3: vehiculos, personas, ventas y test drives.
+
+CREATE TABLE VEHICULOS (
+  ID               BIGINT        NOT NULL AUTO_INCREMENT,
+  CLASE            VARCHAR(255)  NOT NULL,          -- discriminador: Auto / Moto / Camion
+  MARCA            VARCHAR(60)   NOT NULL,
+  MODELO           VARCHAR(80)   NOT NULL,
+  VERSION_MODELO   VARCHAR(80)   NULL,
+  ANIO             INT           NOT NULL,          -- 1950 .. anio actual + 1
+  KILOMETRAJE      INT           NOT NULL,          -- >= 0
+  PRECIO           DECIMAL(14,2) NOT NULL,          -- > 0
+  COLOR            VARCHAR(40)   NULL,
+  COMBUSTIBLE      VARCHAR(20)   NOT NULL,          -- NAFTA, DIESEL, GNC, HIBRIDO, ELECTRICO
+  TRANSMISION      VARCHAR(20)   NOT NULL,          -- MANUAL, AUTOMATICA
+  DESCRIPCION      VARCHAR(1000) NULL,
+  ESTADO           VARCHAR(20)   NOT NULL,          -- DISPONIBLE, VENDIDO, EN_TEST_DRIVE
+  FOTO             VARCHAR(120)  NULL,              -- solo el nombre del archivo
+  ACTIVO           BIT(1)        NOT NULL,          -- baja logica
+  VERSION_FILA     BIGINT        NULL,              -- control optimista de concurrencia
+  PRIMARY KEY (ID)
+);
+
+CREATE TABLE AUTOS (
+  ID      BIGINT NOT NULL,
+  PUERTAS INT    NOT NULL,
+  PRIMARY KEY (ID),
+  CONSTRAINT FK_AUTO_VEHICULO FOREIGN KEY (ID) REFERENCES VEHICULOS (ID)
+);
+
+CREATE TABLE MOTOS (
+  ID          BIGINT      NOT NULL,
+  TIPO_MOTO   VARCHAR(20) NOT NULL,                 -- DEPORTIVA, SCOOTER, CROSS, CUSTOM, NAKED
+  CILINDRADA  INT         NOT NULL,                 -- cc
+  PRIMARY KEY (ID),
+  CONSTRAINT FK_MOTO_VEHICULO FOREIGN KEY (ID) REFERENCES VEHICULOS (ID)
+);
+
+CREATE TABLE CAMIONES (
+  ID                 BIGINT       NOT NULL,
+  CAPACIDAD_CARGA_TN DECIMAL(6,2) NOT NULL,         -- toneladas, > 0
+  PRIMARY KEY (ID),
+  CONSTRAINT FK_CAMION_VEHICULO FOREIGN KEY (ID) REFERENCES VEHICULOS (ID)
+);
+
+-- ---------------------------------------------------------------- Fase 3
+CREATE TABLE PERSONAS (
+  ID        BIGINT       NOT NULL AUTO_INCREMENT,
+  CLASE     VARCHAR(255) NOT NULL,                  -- discriminador: Cliente / Vendedor
+  NOMBRE    VARCHAR(80)  NOT NULL,
+  APELLIDO  VARCHAR(80)  NOT NULL,
+  DNI       VARCHAR(8)   NOT NULL,                  -- 7 u 8 digitos, unico entre TODAS las personas
+  TELEFONO  VARCHAR(32)  NULL,
+  EMAIL     VARCHAR(120) NULL,
+  ACTIVO    BIT(1)       NOT NULL,                  -- baja logica
+  PRIMARY KEY (ID),
+  CONSTRAINT UQ_PERSONA_DNI UNIQUE (DNI)
+);
+
+CREATE TABLE CLIENTES (
+  ID          BIGINT NOT NULL,
+  FECHA_ALTA  DATE   NOT NULL,
+  PRIMARY KEY (ID),
+  CONSTRAINT FK_CLIENTE_PERSONA FOREIGN KEY (ID) REFERENCES PERSONAS (ID)
+);
+
+CREATE TABLE VENDEDORES (
+  ID      BIGINT      NOT NULL,
+  LEGAJO  VARCHAR(20) NOT NULL,                     -- mayusculas, unico
+  PRIMARY KEY (ID),
+  CONSTRAINT UQ_VENDEDOR_LEGAJO UNIQUE (LEGAJO),
+  CONSTRAINT FK_VENDEDOR_PERSONA FOREIGN KEY (ID) REFERENCES PERSONAS (ID)
+);
+
+CREATE TABLE VENTAS (
+  ID               BIGINT        NOT NULL AUTO_INCREMENT,
+  VEHICULO_ID      BIGINT        NOT NULL,          -- UNIQUE: un vehiculo se vende una sola vez
+  CLIENTE_ID       BIGINT        NOT NULL,
+  VENDEDOR_ID      BIGINT        NOT NULL,
+  FECHA_HORA       DATETIME      NOT NULL,
+  PRECIO_VENTA     DECIMAL(14,2) NOT NULL,          -- precio pactado, congelado al vender
+  MODALIDAD_PAGO   VARCHAR(20)   NOT NULL,          -- CONTADO, TRANSFERENCIA, TARJETA, FINANCIADO
+  CLAVE_OPERACION  VARCHAR(36)   NOT NULL,          -- UUID: evita duplicados por reenvio
+  PRIMARY KEY (ID),
+  CONSTRAINT UQ_VENTA_VEHICULO UNIQUE (VEHICULO_ID),
+  CONSTRAINT UQ_VENTA_CLAVE UNIQUE (CLAVE_OPERACION),
+  CONSTRAINT FK_VENTA_VEHICULO FOREIGN KEY (VEHICULO_ID) REFERENCES VEHICULOS (ID),
+  CONSTRAINT FK_VENTA_CLIENTE FOREIGN KEY (CLIENTE_ID) REFERENCES CLIENTES (ID),
+  CONSTRAINT FK_VENTA_VENDEDOR FOREIGN KEY (VENDEDOR_ID) REFERENCES VENDEDORES (ID)
+);
+
+CREATE TABLE TEST_DRIVES (
+  ID                   BIGINT       NOT NULL AUTO_INCREMENT,
+  VEHICULO_ID          BIGINT       NOT NULL,
+  CLIENTE_ID           BIGINT       NOT NULL,
+  VENDEDOR_ID          BIGINT       NULL,           -- opcional
+  FECHA_INICIO         DATETIME     NOT NULL,
+  FECHA_FIN            DATETIME     NULL,
+  ESTADO               VARCHAR(20)  NOT NULL,       -- EN_CURSO, FINALIZADO
+  OBSERVACIONES        VARCHAR(300) NULL,
+  VEHICULO_ABIERTO_ID  BIGINT       NULL,           -- UNIQUE: una sola prueba abierta por vehiculo
+  PRIMARY KEY (ID),
+  CONSTRAINT UQ_TD_VEHICULO_ABIERTO UNIQUE (VEHICULO_ABIERTO_ID),
+  CONSTRAINT FK_TD_VEHICULO FOREIGN KEY (VEHICULO_ID) REFERENCES VEHICULOS (ID),
+  CONSTRAINT FK_TD_CLIENTE FOREIGN KEY (CLIENTE_ID) REFERENCES CLIENTES (ID),
+  CONSTRAINT FK_TD_VENDEDOR FOREIGN KEY (VENDEDOR_ID) REFERENCES VENDEDORES (ID)
+);

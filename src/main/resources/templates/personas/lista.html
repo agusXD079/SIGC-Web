@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera(${plural})}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu(${modulo})}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div>
+        <h1 th:text="${plural}">Clientes</h1>
+        <p th:text="${personas.size()} + ' registro(s) encontrados'"></p>
+      </div>
+      <a class="btn btn-sigc" th:href="@{/{m}/nuevo(m=${modulo})}" th:text="'Registrar ' + ${singular}">Registrar</a>
+    </div>
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+
+    <form class="panel mb-3 row g-2 align-items-end" method="get" th:action="@{/{m}(m=${modulo})}">
+      <div class="col-md-6">
+        <label class="form-label" for="texto">Buscar por nombre, apellido o DNI</label>
+        <input class="form-control" id="texto" name="texto" th:value="${texto}" maxlength="80">
+      </div>
+      <div class="col-md-3">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="bajas" name="bajas" value="true" th:checked="${bajas}">
+          <label class="form-check-label" for="bajas">Incluir dados de baja</label>
+        </div>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-sigc" type="submit">Buscar</button>
+        <a class="btn btn-outline-sigc" th:href="@{/{m}(m=${modulo})}">Limpiar</a>
+      </div>
+    </form>
+
+    <div class="panel p-0 table-responsive">
+      <table class="table tabla-sigc">
+        <thead>
+          <tr>
+            <th>Apellido y nombre</th><th>DNI</th>
+            <th th:if="${esVendedor}">Legajo</th>
+            <th>Teléfono</th><th>Correo</th><th>Estado</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="p : ${personas}">
+            <td th:text="${p.nombreCompleto}"></td>
+            <td th:text="${p.dni}"></td>
+            <td th:if="${esVendedor}" th:text="${p.legajo}"></td>
+            <td th:text="${p.telefono}"></td>
+            <td th:text="${p.email}"></td>
+            <td><span class="estado" th:classappend="${p.activo} ? 'estado-DISPONIBLE' : 'estado-BAJA'" th:text="${p.activo} ? 'Activo' : 'De baja'"></span></td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-sigc" th:href="@{/{m}/{id}(m=${modulo},id=${p.id})}">Ver ficha</a></td>
+          </tr>
+          <tr th:if="${personas.isEmpty()}"><td colspan="7" class="text-center text-secondary py-4">No hay registros para mostrar.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</body>
+</html>

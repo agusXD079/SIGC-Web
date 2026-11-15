@@ -1,0 +1,126 @@
+/* SIGC - identidad automotriz: grafito, acento naranja "naftero" y detalles de tablero. */
+:root {
+  --sigc-bg: #eef0f3;
+  --sigc-panel: #ffffff;
+  --sigc-ink: #15191f;
+  --sigc-muted: #667085;
+  --sigc-line: #dfe3e8;
+  --sigc-side: #11151b;
+  --sigc-side-2: #1a2028;
+  --sigc-accent: #ff6a1a;
+  --sigc-accent-dark: #d9520a;
+  --sigc-ok: #12805c;
+  --sigc-warn: #b7791f;
+  --sigc-bad: #b42318;
+}
+
+body { background: var(--sigc-bg); color: var(--sigc-ink); font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+
+.app { display: flex; min-height: 100vh; }
+
+/* ---- Menu lateral ---- */
+.lateral { width: 248px; flex: 0 0 248px; background: linear-gradient(180deg, var(--sigc-side), var(--sigc-side-2)); color: #cfd6df; padding: 1.25rem 0.9rem; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
+.marca { display: flex; align-items: center; gap: .65rem; padding: 0 .5rem 1.25rem; border-bottom: 1px solid #262e38; margin-bottom: 1rem; text-decoration: none; color: #fff; }
+.marca-logo { width: 38px; height: 38px; border-radius: 10px; background: var(--sigc-accent); display: grid; place-items: center; box-shadow: 0 0 0 3px rgba(255,106,26,.25); }
+.marca-texto strong { display: block; letter-spacing: .12em; font-size: 1.1rem; line-height: 1; }
+.marca-texto small { color: #8b96a5; font-size: .68rem; letter-spacing: .04em; }
+.lateral nav a { display: flex; align-items: center; gap: .7rem; padding: .62rem .75rem; margin-bottom: .2rem; border-radius: 10px; color: #b8c1cd; text-decoration: none; font-weight: 500; border-left: 3px solid transparent; }
+.lateral nav a:hover { background: #222a35; color: #fff; }
+.lateral nav a.activo { background: #222a35; color: #fff; border-left-color: var(--sigc-accent); }
+.lateral nav svg { width: 20px; height: 20px; flex: 0 0 20px; }
+.lateral .pie { margin-top: auto; font-size: .72rem; color: #6f7b8a; padding: .5rem; }
+
+.contenido { flex: 1; min-width: 0; padding: 1.5rem 1.75rem 3rem; }
+.barra-superior { display: none; }
+
+.encabezado { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1.25rem; }
+.encabezado h1 { font-size: 1.65rem; font-weight: 700; margin: 0; }
+.encabezado p { margin: .15rem 0 0; color: var(--sigc-muted); }
+
+.btn-sigc { background: var(--sigc-accent); border-color: var(--sigc-accent); color: #fff; font-weight: 600; }
+.btn-sigc:hover, .btn-sigc:focus { background: var(--sigc-accent-dark); border-color: var(--sigc-accent-dark); color: #fff; }
+.btn-outline-sigc { border-color: #c9d0d9; color: var(--sigc-ink); background: #fff; font-weight: 500; }
+.btn-outline-sigc:hover { border-color: var(--sigc-accent); color: var(--sigc-accent-dark); background: #fff; }
+
+.panel { background: var(--sigc-panel); border: 1px solid var(--sigc-line); border-radius: 14px; padding: 1.1rem 1.2rem; }
+.panel h2 { font-size: 1rem; font-weight: 700; margin-bottom: .9rem; }
+
+/* ---- Indicadores ---- */
+.kpi { background: var(--sigc-panel); border: 1px solid var(--sigc-line); border-radius: 14px; padding: 1rem 1.1rem; position: relative; overflow: hidden; height: 100%; }
+.kpi::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--kpi-color, var(--sigc-accent)); }
+.kpi .rotulo { color: var(--sigc-muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.kpi .valor { font-size: 2rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.kpi .nota { font-size: .8rem; color: var(--sigc-muted); }
+
+/* ---- Barras de distribucion (sin librerias externas) ---- */
+.barra-fila { display: grid; grid-template-columns: 110px 1fr 60px; gap: .75rem; align-items: center; margin-bottom: .6rem; font-size: .9rem; }
+.barra-pista { height: 12px; background: #edf0f3; border-radius: 999px; overflow: hidden; }
+.barra-relleno { height: 100%; border-radius: 999px; background: var(--barra-color, var(--sigc-accent)); }
+.barra-valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--sigc-muted); }
+
+/* ---- Estados ---- */
+.estado { display: inline-block; padding: .18rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 700; letter-spacing: .02em; }
+.estado-DISPONIBLE { background: #dcf5ea; color: var(--sigc-ok); }
+.estado-VENDIDO { background: #e6e9ee; color: #475467; }
+.estado-EN_TEST_DRIVE { background: #fdf0d3; color: var(--sigc-warn); }
+.estado-BAJA { background: #fde4e1; color: var(--sigc-bad); }
+
+/* ---- Tarjetas de vehiculo ---- */
+.auto-tarjeta { background: var(--sigc-panel); border: 1px solid var(--sigc-line); border-radius: 14px; overflow: hidden; height: 100%; display: flex; flex-direction: column; transition: transform .12s ease, box-shadow .12s ease; }
+.auto-tarjeta:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(17,21,27,.1); }
+.auto-foto { aspect-ratio: 16 / 10; background: linear-gradient(135deg, #1b222c, #2c3643); position: relative; display: grid; place-items: center; color: #7d8998; }
+.auto-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.auto-foto .sin-foto { text-align: center; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
+.auto-foto .sin-foto svg { width: 54px; height: 54px; display: block; margin: 0 auto .35rem; opacity: .7; }
+.auto-foto .estado { position: absolute; top: .65rem; left: .65rem; }
+.auto-foto .tipo { position: absolute; top: .65rem; right: .65rem; background: rgba(17,21,27,.78); color: #fff; font-size: .7rem; padding: .18rem .55rem; border-radius: 6px; letter-spacing: .06em; text-transform: uppercase; }
+.auto-cuerpo { padding: .9rem 1rem 1rem; display: flex; flex-direction: column; gap: .35rem; flex: 1; }
+.auto-cuerpo h3 { font-size: 1.05rem; font-weight: 700; margin: 0; }
+.auto-cuerpo .meta { color: var(--sigc-muted); font-size: .84rem; }
+.auto-precio { font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: auto; }
+.auto-acciones { display: flex; gap: .5rem; margin-top: .6rem; }
+.auto-acciones .btn { flex: 1; }
+.inactivo { opacity: .6; }
+
+/* ---- Tablas y filtros ---- */
+.tabla-sigc { margin: 0; }
+.tabla-sigc thead th { background: #f6f7f9; color: var(--sigc-muted); font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--sigc-line); white-space: nowrap; }
+.tabla-sigc td { vertical-align: middle; font-variant-numeric: tabular-nums; }
+.miniatura { width: 64px; height: 44px; border-radius: 8px; object-fit: cover; background: #232b36; display: block; }
+.filtros .form-label { font-size: .75rem; font-weight: 600; color: var(--sigc-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .2rem; }
+.chips a { display: inline-block; padding: .35rem .9rem; border-radius: 999px; border: 1px solid #c9d0d9; background: #fff; color: var(--sigc-ink); text-decoration: none; font-size: .85rem; font-weight: 500; margin: 0 .3rem .4rem 0; }
+.chips a.activo { background: var(--sigc-ink); border-color: var(--sigc-ink); color: #fff; }
+
+/* ---- Ficha ---- */
+.ficha-foto { border-radius: 14px; overflow: hidden; background: linear-gradient(135deg, #1b222c, #2c3643); aspect-ratio: 16 / 10; display: grid; place-items: center; color: #7d8998; }
+.ficha-foto img { width: 100%; height: 100%; object-fit: cover; }
+.dato { padding: .55rem 0; border-bottom: 1px dashed var(--sigc-line); display: flex; justify-content: space-between; gap: 1rem; }
+.dato:last-child { border-bottom: 0; }
+.dato span:first-child { color: var(--sigc-muted); }
+.dato span:last-child { font-weight: 600; text-align: right; }
+
+.form-control:focus, .form-select:focus { border-color: var(--sigc-accent); box-shadow: 0 0 0 .2rem rgba(255,106,26,.18); }
+.seccion-tipo { display: none; }
+.seccion-tipo.visible { display: flex; }
+
+/* ---- Responsive: el menu pasa a barra superior ---- */
+@media (max-width: 991.98px) {
+  .app { flex-direction: column; }
+  .lateral { width: 100%; flex: none; height: auto; position: static; flex-direction: row; align-items: center; flex-wrap: wrap; padding: .7rem .9rem; }
+  .marca { border: 0; padding: 0; margin: 0 1rem 0 0; }
+  .lateral nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+  .lateral nav a { margin: 0; padding: .45rem .7rem; border-left: 0; border-bottom: 3px solid transparent; }
+  .lateral nav a.activo { border-bottom-color: var(--sigc-accent); }
+  .lateral .pie { display: none; }
+  .contenido { padding: 1rem .9rem 2.5rem; }
+}
+
+@media print {
+  .lateral, .no-imprimir { display: none !important; }
+  .contenido { padding: 0; }
+  body { background: #fff; }
+}
+
+/* Barras de reportes (etiqueta arriba, pista debajo) */
+.barra-bloque { margin-bottom: .75rem; font-size: .9rem; }
+.barra-bloque .barra-pista { margin-top: .25rem; }

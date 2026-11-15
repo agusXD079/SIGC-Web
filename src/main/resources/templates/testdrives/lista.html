@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecera('Test drives')}"></head>
+<body>
+<div class="app">
+  <aside th:replace="~{fragmentos :: menu('testdrives')}"></aside>
+  <main class="contenido">
+    <div class="encabezado">
+      <div><h1>Test drives</h1><p th:text="${pruebas.size()} + ' registro(s)'"></p></div>
+      <a class="btn btn-sigc" th:href="@{/testdrives/nuevo}">Iniciar test drive</a>
+    </div>
+    <div th:replace="~{fragmentos :: mensajes}"></div>
+    <form class="panel mb-3 row g-2 align-items-end" method="get" th:action="@{/testdrives}">
+      <div class="col-md-4">
+        <label class="form-label" for="estado">Estado</label>
+        <select class="form-select" id="estado" name="estado">
+          <option value="">Todos</option>
+          <option th:each="e : ${estados}" th:value="${e}" th:text="${e.etiqueta}" th:selected="${estado == e}"></option>
+        </select>
+      </div>
+      <div class="col-md-4 d-flex gap-2">
+        <button class="btn btn-sigc" type="submit">Filtrar</button>
+        <a class="btn btn-outline-sigc" th:href="@{/testdrives}">Limpiar</a>
+      </div>
+    </form>
+    <div class="panel p-0 table-responsive">
+      <table class="table tabla-sigc">
+        <thead><tr><th>Inicio</th><th>Vehículo</th><th>Cliente</th><th>Vendedor</th><th>Estado</th><th>Observaciones</th><th></th></tr></thead>
+        <tbody>
+          <tr th:each="t : ${pruebas}">
+            <td th:text="${#temporals.format(t.fechaInicio, 'dd/MM/yyyy HH:mm')}"></td>
+            <td><a th:href="@{/vehiculos/{id}(id=${t.vehiculo.id})}" th:text="${t.vehiculo.titulo}"></a></td>
+            <td th:text="${t.cliente.nombreCompleto}"></td>
+            <td th:text="${t.vendedor != null} ? ${t.vendedor.nombreCompleto} : '—'"></td>
+            <td><span class="estado" th:classappend="${t.enCurso} ? 'estado-EN_TEST_DRIVE' : 'estado-DISPONIBLE'" th:text="${t.estado.etiqueta}"></span>
+                <div class="small text-secondary" th:if="${t.fechaFin != null}" th:text="${#temporals.format(t.fechaFin, 'dd/MM/yyyy HH:mm')}"></div></td>
+            <td th:text="${t.observaciones}"></td>
+            <td class="text-end">
+              <form method="post" th:if="${t.enCurso}" th:action="@{/testdrives/{id}/finalizar(id=${t.id})}" class="d-flex gap-1">
+                <input class="form-control form-control-sm" name="observaciones" placeholder="Observaciones" maxlength="300">
+                <button class="btn btn-sm btn-sigc" type="submit">Finalizar</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${pruebas.isEmpty()}"><td colspan="7" class="text-center text-secondary py-4">No hay pruebas de manejo.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</body>
+</html>
