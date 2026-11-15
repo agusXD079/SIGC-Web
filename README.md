@@ -2,7 +2,7 @@
 
 Trabajo Práctico de Programación 2 · IFES · Análisis de Sistemas
 
-**Integrantes:** Thiago Vecchi, Franco Araneda y Ángel Venditti.
+**Integrantes:** Thiago Vecchi, Franco Araneda, Tiago Silenzi y Luz Araneda.
 
 SIGC evoluciona el sistema de consola de Programación 1 (`legacy/consola/`) hacia una aplicación web de gestión de concesionaria: Spring Boot, Spring MVC, Thymeleaf, Bootstrap 5, JDO/DataNucleus y MySQL. Se conserva la jerarquía original `Vehiculo → Auto, Moto, Camion`, los estados `DISPONIBLE`, `VENDIDO` y `EN_TEST_DRIVE`, la excepción `VehiculoNoDisponibleException` y la interfaz `ITransaccionable`.
 
