@@ -1,14 +1,14 @@
 # Arquitectura
 
-SIGC es un proyecto Maven de un solo módulo, organizado en capas con la misma convención de paquetes que Gestor_GYM (`dominio`, `repositorio`, `servicio`, `controlador`, `configuracion`) y un subpaquete `servicio/vista` para DTO y modelos de vista.
+SIGC es un proyecto Maven de un solo módulo, organizado en capas en los paquetes `dominio`, `repositorio`, `servicio`, `controlador` y `configuracion` y un subpaquete `servicio/vista` para DTO y modelos de vista.
 
-| Capa | Responsabilidad | Clases (Fase 2) |
+| Capa | Responsabilidad | Clases |
 |---|---|---|
-| Dominio | Estado, identidad y reglas de las entidades; transiciones de estado | `Vehiculo`, `Auto`, `Moto`, `Camion`, `EstadoVehiculo`, `Combustible`, `Transmision`, `TipoMoto`, `TipoVehiculo`, `Validaciones`, `ReglaNegocioException`, `VehiculoNoDisponibleException`, `ITransaccionable` |
-| Repositorio | Consultas y escrituras JDO; nunca confirma transacciones | `IRepositorio<T>`, `RepositorioJdo<T>`, `VehiculoRepositorio` |
-| Servicio | Casos de uso, transacciones, fotos | `VehiculoService`, `UnidadTrabajo`, `FotoAlmacen`, `PersistenciaException` |
-| Servicio / vista | DTO de entrada y salida | `DatosVehiculo`, `FiltroVehiculos`, `ResumenInventario` |
-| Controlador | Rutas HTTP, validación de formularios, elección de vista | `InicioController`, `VehiculoController`, `InventarioController`, `FotoController`, `ErroresController` |
+| Dominio | Estado, identidad y reglas de las entidades; transiciones de estado | `Vehiculo`, `Auto`, `Moto`, `Camion`, `Persona`, `Cliente`, `Vendedor`, `Venta`, `TestDrive`, enums (`EstadoVehiculo`, `EstadoTestDrive`, `ModalidadPago`, `Combustible`, `Transmision`, `TipoMoto`, `TipoVehiculo`), `Validaciones`, `ReglaNegocioException`, `VehiculoNoDisponibleException`, `ITransaccionable` |
+| Repositorio | Consultas y escrituras JDO; nunca confirma transacciones | `IRepositorio<T>`, `RepositorioJdo<T>`, `VehiculoRepositorio`, `ClienteRepositorio`, `VendedorRepositorio`, `VentaRepositorio`, `TestDriveRepositorio` |
+| Servicio | Casos de uso, reglas de negocio, transacciones, fotos, reportes | `VehiculoService`, `ClienteService`, `VendedorService`, `VentaService`, `TestDriveService`, `DashboardService`, `ReporteService`, `UnidadTrabajo`, `FotoAlmacen`, `PersistenciaException` |
+| Servicio / vista | DTO de entrada y salida | `DatosVehiculo`, `DatosPersona`, `DatosVenta`, `DatosTestDrive`, `FiltroVehiculos`, `FiltroVentas`, `ResumenInventario`, `PanelControl`, `ReporteVentas` |
+| Controlador | Rutas HTTP, validación de formularios, elección de vista | `InicioController`, `VehiculoController`, `InventarioController`, `ClienteController`, `VendedorController`, `VentaController`, `TestDriveController`, `ReporteController`, `FotoController`, `ErroresController` |
 | Configuración | Fábrica JDO, reloj, CSRF | `Configuracion` |
 | Vista | Thymeleaf + Bootstrap 5 + CSS propio | `templates/`, `static/css/sigc.css` |
 
@@ -19,7 +19,7 @@ Los controladores no contienen reglas de negocio: validan el formato del formula
 - **JDO/DataNucleus 6** con MySQL 8.4. `Configuracion` arma la `PersistenceManagerFactory` desde la unidad `sigc` de `META-INF/persistence.xml` y aplica las credenciales del entorno.
 - **Unidad de trabajo.** Cada caso de uso abre un `PersistenceManager`, ejecuta y cierra (`UnidadTrabajo.leer` / `escribir`). Las escrituras corren en una transacción con lecturas bloqueantes (`setSerializeRead(true)`) y READ COMMITTED.
 - **Datos hacia la vista.** Los servicios devuelven copias *detached* (`detachCopy`); ninguna plantilla ejecuta consultas.
-- **Concurrencia.** `Vehiculo` declara `@Version` (columna `VERSION_FILA`): si dos usuarios editan la misma fila, el segundo recibe "Otro usuario modificó este registro" en lugar de pisar los cambios. En la Fase 3 la venta usará además el bloqueo de la fila del vehículo y una restricción `UNIQUE(vehiculo_id)` en `VENTAS`.
+- **Concurrencia.** `Vehiculo` declara `@Version` (columna `VERSION_FILA`): si dos usuarios editan la misma fila, el segundo recibe "Otro usuario modificó este registro" en lugar de pisar los cambios. La venta usa además el bloqueo de la fila del vehículo y una restricción `UNIQUE(vehiculo_id)` en `VENTAS`, de modo que un vehículo no puede venderse dos veces ni siquiera con dos solicitudes simultáneas.
 - **Herencia.** Cada clase de la jerarquía tiene su tabla unida por identidad; `VEHICULOS.CLASE` es el discriminador.
 - **Búsquedas.** El texto externo viaja siempre como parámetro de JDOQL, nunca concatenado.
 
@@ -28,6 +28,13 @@ Los controladores no contienen reglas de negocio: validan el formato del formula
 1. El navegador envía `GET /vehiculos?texto=toyota&orden=PRECIO_ASC`. `VehiculoController.lista` arma un `FiltroVehiculos`.
 2. `VehiculoService.listar` abre una unidad de lectura y llama a `VehiculoRepositorio.buscar`, que construye el JDOQL y consulta MySQL.
 3. El servicio devuelve copias detached; el controlador las pone en el `Model` y Thymeleaf genera `vehiculos/lista.html`.
+
+## Recorrido: registrar una venta
+
+1. `GET /ventas/nueva` muestra el formulario (`ventas/form.html`) con los vehículos disponibles, los clientes y vendedores activos, y una clave de operación (UUID) oculta. `VentaController` obtiene todo de los servicios, nunca de los repositorios.
+2. `POST /ventas` (con token CSRF). `@Valid` revisa los campos de `DatosVenta`; si hay errores vuelve al formulario con los datos cargados.
+3. `VentaService.registrar` abre una transacción (`UnidadTrabajo.escribir`), bloquea la fila del vehículo, comprueba que cliente y vendedor estén activos y llama a `Vehiculo.vender()`, que lanza `VehiculoNoDisponibleException` si no está `DISPONIBLE`. Luego guarda la `Venta` mediante `VentaRepositorio` (JDO) y confirma.
+4. Si algo falla, se revierte todo: el vehículo no queda vendido sin comprobante. El controlador redirige al comprobante (`ventas/comprobante.html`) o vuelve al formulario con el mensaje de error.
 
 ## Recorrido: registrar un vehículo con foto
 
@@ -39,7 +46,7 @@ Los controladores no contienen reglas de negocio: validan el formato del formula
 
 | Decisión | Motivo |
 |---|---|
-| JDO/DataNucleus en lugar de JPA | Coherencia con Gestor_GYM y con la materia. **Pendiente de confirmar con el docente.** |
+| JDO/DataNucleus en lugar de JPA | Lo exige la consigna de la materia (persistencia con DataNucleus JDO). |
 | Spring Security solo para CSRF | Sin login ni roles en esta versión (consigna). |
 | `TipoMoto` como enum | El original usaba texto libre ("deportiva/scooter/cross"); el enum evita valores inconsistentes en la base. |
 | `BigDecimal` para importes | El original usaba `double`. |

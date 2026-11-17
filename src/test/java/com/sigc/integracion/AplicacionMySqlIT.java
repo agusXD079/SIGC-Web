@@ -188,6 +188,21 @@ class AplicacionMySqlIT {
     }
 
     @Test
+    void relacionUnoAMuchosUnClienteReuneTodasSusCompras() {
+        long cli = clientes.crear(persona("Gomez", "20111222", null));
+        long otro = clientes.crear(persona("Luna", "20333444", null));
+        long ven = vendedores.crear(persona("Paz", "30111222", "V1"));
+        long primera = ventas.registrar(datosVenta(auto("Corolla"), cli, ven));
+        long segunda = ventas.registrar(datosVenta(auto("Etios"), cli, ven));
+
+        HistorialPersona historial = clientes.historial(cli);
+        assertThat(historial.ventas()).extracting(Venta::getId).containsExactly(segunda, primera);
+        assertThat(historial.ventas()).allSatisfy(v -> assertThat(v.getCliente().getId()).isEqualTo(cli));
+        assertThat(historial.montoTotal()).isEqualByComparingTo("19000000");
+        assertThat(clientes.historial(otro).ventas()).isEmpty();
+    }
+
+    @Test
     void bajaDeClienteConservaSuHistorialYElPanelCuentaDatosReales() {
         long veh = auto("Corolla");
         long cli = clientes.crear(persona("Gomez", "20111222", null));

@@ -4,11 +4,21 @@ Trabajo Práctico de Programación 2 · IFES · Análisis de Sistemas
 
 **Integrantes:** Thiago Vecchi, Franco Araneda, Tiago Silenzi y Luz Araneda.
 
-SIGC evoluciona el sistema de consola de Programación 1 (`legacy/consola/`) hacia una aplicación web de gestión de concesionaria: Spring Boot, Spring MVC, Thymeleaf, Bootstrap 5, JDO/DataNucleus y MySQL. Se conserva la jerarquía original `Vehiculo → Auto, Moto, Camion`, los estados `DISPONIBLE`, `VENDIDO` y `EN_TEST_DRIVE`, la excepción `VehiculoNoDisponibleException` y la interfaz `ITransaccionable`.
+## Descripción
 
-> **Estado: Fases 1 a 4 implementadas** (vehículos, clientes, vendedores, ventas, test drives, dashboard y reportes). Ver [docs/ESTADO_Y_PENDIENTES.md](docs/ESTADO_Y_PENDIENTES.md). Compilado y verificado: `mvn clean verify` (41 pruebas unitarias) y `mvn -Pmysql-it verify` contra MySQL 8 (6 pruebas de integración) pasan, y la aplicación se recorrió completa en el navegador: ver [docs/VERIFICACION.md](docs/VERIFICACION.md).
+SIGC resuelve la gestión diaria de una concesionaria de vehículos: qué hay en el inventario, a quién se vendió cada unidad, quién la vendió y quién la probó. Evoluciona el sistema de consola de Programación 1 hacia una aplicación web con Maven, Spring Boot, Spring MVC, Thymeleaf, HTML, CSS y Bootstrap 5, persistencia con DataNucleus JDO y MySQL.
 
-## Qué se puede hacer hoy
+**Entidades persistentes:** `Vehiculo` (con `Auto`, `Moto` y `Camion`), `Persona` (con `Cliente` y `Vendedor`), `Venta` y `TestDrive`.
+
+**Relaciones:** un cliente tiene muchas ventas y muchos test drives (1:N); un vendedor tiene muchas ventas (1:N); un vehículo tiene muchos test drives (1:N) y a lo sumo una venta (1:0..1). La relación uno a muchos `Cliente`–`Venta` está declarada en JDO de los dos lados (`Cliente.compras` con `mappedBy` y `Venta.cliente`). Detalle en [docs/MODELO_DATOS.md](docs/MODELO_DATOS.md).
+
+**Operaciones propias del negocio:** vender un vehículo (solo si está disponible, una única vez y de forma atómica) y registrar/finalizar un test drive (el vehículo pasa a `EN_TEST_DRIVE` y vuelve a `DISPONIBLE`).
+
+Se conserva de la versión de consola la jerarquía `Vehiculo → Auto, Moto, Camion`, los estados `DISPONIBLE`, `VENDIDO` y `EN_TEST_DRIVE`, la excepción `VehiculoNoDisponibleException` y la interfaz `ITransaccionable`.
+
+> **Estado:** vehículos, clientes, vendedores, ventas, test drives, dashboard y reportes. Ver [docs/ESTADO_Y_PENDIENTES.md](docs/ESTADO_Y_PENDIENTES.md). Compilado y verificado en Windows 11 con JDK 17 y MySQL 8.4: `mvn clean verify` (41 pruebas unitarias) y `mvn -Pmysql-it verify` (7 pruebas de integración con MySQL y JDO) pasan, y la aplicación se recorrió completa en ejecución. Qué se comprobó y qué no: [docs/VERIFICACION.md](docs/VERIFICACION.md) e [docs/INFORME_CORRECCIONES.md](docs/INFORME_CORRECCIONES.md).
+
+## Funcionalidades
 
 - Registrar, editar y dar de baja (baja lógica y reactivación) autos, motos y camiones, con fotografía.
 - Listar en tarjetas o tabla; buscar por marca o modelo; filtrar por tipo, estado, año y precio; ordenar por precio.
@@ -76,25 +86,24 @@ SIGC/
 ├── pom.xml
 ├── README.md
 ├── db/                 crear-bases.sql, esquema-referencia.sql
-├── docs/               arquitectura, modelo de datos, reglas, pruebas, defensa, estado
-├── legacy/consola/     proyecto original de consola (ver docs/INCORPORAR_AL_REPO.md)
+├── docs/               arquitectura, modelo de datos, reglas, pruebas, guía de defensa, estado
 ├── .github/workflows/  verificar.yml
 └── src/
     ├── main/java/com/sigc/
     │   ├── SigcApplication.java
     │   ├── configuracion/   fábrica JDO, reloj, CSRF
-    │   ├── dominio/         Vehiculo, Auto, Moto, Camion, enums, validaciones, excepciones
-    │   ├── repositorio/     IRepositorio, RepositorioJdo, VehiculoRepositorio
-    │   ├── servicio/        VehiculoService, UnidadTrabajo, FotoAlmacen
-    │   │   └── vista/       DTO y modelos de vista (DatosVehiculo, FiltroVehiculos, ResumenInventario)
-    │   └── controlador/     Inicio, Vehiculo, Inventario, Foto, Errores
+    │   ├── dominio/         entidades (Vehiculo, Auto, Moto, Camion, Persona, Cliente, Vendedor, Venta, TestDrive), enums, validaciones, excepciones
+    │   ├── repositorio/     acceso a datos con JDO (un repositorio por entidad)
+    │   ├── servicio/        reglas de negocio y transacciones (Vehiculo, Cliente, Vendedor, Venta, TestDrive, Dashboard, Reporte)
+    │   │   └── vista/       DTO y modelos de vista
+    │   └── controlador/     Inicio, Vehiculo, Inventario, Cliente, Vendedor, Venta, TestDrive, Reporte, Foto, Errores
     ├── main/resources/      application.properties, META-INF/persistence.xml, templates/, static/css/sigc.css
-    └── test/java/com/sigc/  pruebas unitarias
+    └── test/java/com/sigc/  pruebas unitarias y de integración
 ```
 
 ## Documentación
 
-[Arquitectura](docs/ARQUITECTURA.md) · [Modelo de datos](docs/MODELO_DATOS.md) · [Reglas de negocio](docs/REGLAS_NEGOCIO.md) · [Casos de prueba](docs/CASOS_DE_PRUEBA.md) · [Verificación](docs/VERIFICACION.md) · [Estado y pendientes](docs/ESTADO_Y_PENDIENTES.md) · [Incorporar al repositorio](docs/INCORPORAR_AL_REPO.md)
+[Arquitectura](docs/ARQUITECTURA.md) · [Modelo de datos](docs/MODELO_DATOS.md) · [Reglas de negocio](docs/REGLAS_NEGOCIO.md) · [Casos de prueba](docs/CASOS_DE_PRUEBA.md) · [Verificación](docs/VERIFICACION.md) · [Estado y pendientes](docs/ESTADO_Y_PENDIENTES.md) · [Guía de defensa](docs/GUIA_DEFENSA.md) · [Informe de correcciones](docs/INFORME_CORRECCIONES.md)
 
 ## Seguridad
 

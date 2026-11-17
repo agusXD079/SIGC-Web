@@ -4,9 +4,7 @@ import com.sigc.dominio.*;
 import com.sigc.repositorio.ClienteRepositorio;
 import com.sigc.repositorio.PersonaRepositorio;
 import com.sigc.repositorio.TestDriveRepositorio;
-import com.sigc.repositorio.VentaRepositorio;
 import com.sigc.servicio.vista.DatosPersona;
-import com.sigc.servicio.vista.FiltroVentas;
 import com.sigc.servicio.vista.HistorialPersona;
 
 import org.springframework.stereotype.Service;
@@ -23,7 +21,6 @@ public class ClienteService {
     private final UnidadTrabajo unidad;
     private final ClienteRepositorio clientes;
     private final PersonaRepositorio personas;
-    private final VentaRepositorio ventas;
     private final TestDriveRepositorio testDrives;
     private final Clock reloj;
 
@@ -31,7 +28,6 @@ public class ClienteService {
      * @param unidad limite transaccional
      * @param clientes acceso a clientes
      * @param personas verificacion de DNI unico
-     * @param ventas historial de compras
      * @param testDrives historial de pruebas
      * @param reloj reloj de negocio
      */
@@ -39,13 +35,11 @@ public class ClienteService {
             UnidadTrabajo unidad,
             ClienteRepositorio clientes,
             PersonaRepositorio personas,
-            VentaRepositorio ventas,
             TestDriveRepositorio testDrives,
             Clock reloj) {
         this.unidad = unidad;
         this.clientes = clientes;
         this.personas = personas;
-        this.ventas = ventas;
         this.testDrives = testDrives;
         this.reloj = reloj;
     }
@@ -76,7 +70,8 @@ public class ClienteService {
         return unidad.leer(
                 pm -> {
                     Cliente c = clientes.porId(pm, id);
-                    List<Venta> compras = ventas.buscar(pm, new FiltroVentas(id, null, null, null));
+                    // Relacion uno a muchos: las compras se obtienen navegando Cliente -> ventas.
+                    List<Venta> compras = c.getCompras();
                     BigDecimal total =
                             compras.stream()
                                     .map(Venta::getPrecioVenta)

@@ -7,7 +7,7 @@
 | `dominio/VehiculoTest` | RV02 a RV12: estados, doble venta, test drive, bajas, vehículo vendido inmodificable, validaciones, polimorfismo |
 | `dominio/ValidacionesTest` | Texto, importe (redondeo y tope) y rangos |
 | `dominio/VentasYPersonasTest` | DNI y correo, `equals/hashCode`, orden por apellido, legajo, venta, test drive, bajas |
-| `integracion/AplicacionMySqlIT` (perfil `mysql-it`, requiere MySQL) | DNI único, venta completa y no repetible, reenvío idempotente, dos ventas simultáneas del mismo vehículo, test drive bloquea la venta, panel con datos reales |
+| `integracion/AplicacionMySqlIT` (perfil `mysql-it`, requiere MySQL) | DNI único, venta completa y no repetible, reenvío idempotente, dos ventas simultáneas del mismo vehículo, test drive bloquea la venta, relación uno a muchos Cliente–Venta, panel con datos reales |
 | `servicio/FotoAlmacenTest` | RV14: firma real, tamaño, nombre generado, rutas inválidas |
 
 Ejecutar: `mvn clean verify`. **Estado de ejecución: ver [VERIFICACION.md](VERIFICACION.md).**
@@ -32,9 +32,9 @@ Ejecutar: `mvn clean verify`. **Estado de ejecución: ver [VERIFICACION.md](VERI
 | A14 | Abrir en un celular (o ventana angosta) | El menú pasa a la parte superior; tarjetas en una columna |
 | A15 | Abrir `/vehiculos/999999` | Página de error con mensaje claro, sin traza interna |
 
-## Pendiente (Fase 4)
+## Integración con MySQL
 
-Pruebas de integración contra MySQL real (`sigc_test`): persistencia de la jerarquía, bloqueo y `@Version`, ventas concurrentes del mismo vehículo.
+Las pruebas de integración contra MySQL real (`sigc_test`) están en `integracion/AplicacionMySqlIT` y se ejecutan con `mvn -Pmysql-it verify` (variables `SIGC_TEST_DB_URL`, `SIGC_TEST_DB_USER` y `SIGC_TEST_DB_PASSWORD`). Sin `SIGC_TEST_DB_URL` se omiten, de modo que `mvn clean verify` no necesita base de datos.
 
 ## Manuales de las Fases 3 y 4 (con la aplicación en marcha)
 
@@ -55,3 +55,5 @@ Pruebas de integración contra MySQL real (`sigc_test`): persistencia de la jera
 | B13 | Imprimir comprobante | El menú y los botones no salen en la impresión |
 | B14 | Dashboard y `/reportes` tras varias ventas | Totales coherentes con el listado de ventas |
 | B15 | POST sin token CSRF a `/ventas` | 403 |
+| B16 | Vender dos vehículos al mismo cliente y abrir su ficha | La ficha muestra las dos compras y la suma (relación uno a muchos) |
+| B17 | Enviar un formulario con un texto en un campo numérico | Mensaje en castellano ("Ingrese un número entero válido."), nunca el texto técnico de Spring |
