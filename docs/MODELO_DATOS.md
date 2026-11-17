@@ -49,4 +49,6 @@ erDiagram
     VEHICULOS ||--o{ TEST_DRIVES : "se prueba en"
 ```
 
+**Relación uno a muchos en JDO.** `Cliente` declara `@Persistent(mappedBy = "cliente") Set<Venta> compras` y `Venta` declara `Cliente cliente`: es una relación 1:N bidireccional que usa la clave foránea `VENTAS.CLIENTE_ID` (no hay tabla intermedia ni columnas extra). `ClienteService.historial` la recorre con `cliente.getCompras()` para armar la ficha del cliente. Las demás relaciones 1:N (`Vendedor`–`Venta`, `Cliente`–`TestDrive`, `Vehiculo`–`TestDrive`) están declaradas del lado "muchos" y se consultan por repositorio.
+
 Restricciones implementadas (ver `db/esquema-referencia.sql`): `PERSONAS.DNI` único; `VENTAS.VEHICULO_ID` único (un vehículo no se vende dos veces); `VENTAS.CLAVE_OPERACION` único (idempotencia); `VENDEDORES.LEGAJO` único; `TEST_DRIVES.VEHICULO_ABIERTO_ID` único y nulo al finalizar (una prueba abierta por vehículo); precio de venta y fecha grabados al vender; no se borran filas referenciadas (baja lógica).
