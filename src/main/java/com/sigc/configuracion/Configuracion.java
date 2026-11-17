@@ -39,11 +39,16 @@ public class Configuracion {
     }
 
     /**
+     * Reloj con precision de segundos. Las columnas DATETIME de MySQL no guardan fracciones y
+     * redondean al segundo mas cercano: una hora 10:00:00.700 quedaba grabada como 10:00:01 y un
+     * test drive finalizado enseguida resultaba "anterior al inicio". Sin fracciones, lo que se
+     * graba es exactamente lo que se calculo.
+     *
      * @return reloj de negocio en la zona horaria de la concesionaria
      */
     @Bean
     public Clock reloj() {
-        return Clock.system(ZoneId.of("America/Argentina/Buenos_Aires"));
+        return Clock.tickSeconds(ZoneId.of("America/Argentina/Buenos_Aires"));
     }
 
     /**

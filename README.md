@@ -16,7 +16,7 @@ SIGC resuelve la gestión diaria de una concesionaria de vehículos: qué hay en
 
 Se conserva de la versión de consola la jerarquía `Vehiculo → Auto, Moto, Camion`, los estados `DISPONIBLE`, `VENDIDO` y `EN_TEST_DRIVE`, la excepción `VehiculoNoDisponibleException` y la interfaz `ITransaccionable`.
 
-> **Estado:** vehículos, clientes, vendedores, ventas, test drives, dashboard y reportes. Ver [docs/ESTADO_Y_PENDIENTES.md](docs/ESTADO_Y_PENDIENTES.md). Compilado y verificado en Windows 11 con JDK 17 y MySQL 8.4: `mvn clean verify` (41 pruebas unitarias) y `mvn -Pmysql-it verify` (7 pruebas de integración con MySQL y JDO) pasan, y la aplicación se recorrió completa en ejecución. Qué se comprobó y qué no: [docs/VERIFICACION.md](docs/VERIFICACION.md) e [docs/INFORME_CORRECCIONES.md](docs/INFORME_CORRECCIONES.md).
+> **Estado:** vehículos, clientes, vendedores, ventas, test drives, dashboard y reportes. Ver [docs/ESTADO_Y_PENDIENTES.md](docs/ESTADO_Y_PENDIENTES.md). Compilado y verificado en Windows 11 con JDK 17 y MySQL 8.4: `mvn clean verify` (44 pruebas unitarias) y `mvn -Pmysql-it verify` (7 pruebas de integración con MySQL y JDO) pasan, y la aplicación se recorrió completa en ejecución. Qué se comprobó y qué no: [docs/VERIFICACION.md](docs/VERIFICACION.md) e [docs/INFORME_CORRECCIONES.md](docs/INFORME_CORRECCIONES.md).
 
 ## Funcionalidades
 

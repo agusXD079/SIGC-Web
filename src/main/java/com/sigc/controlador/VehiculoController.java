@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Rutas HTTP del modulo de vehiculos: listado, alta, edicion, ficha, baja y reactivacion. */
 @Controller
@@ -52,6 +54,19 @@ public class VehiculoController {
             @RequestParam(defaultValue = "tarjetas") String vista,
             @RequestParam(defaultValue = "false") boolean bajas,
             Model model) {
+        // Un rango invertido se informa y se ignora, igual que las fechas en ventas y reportes.
+        List<String> avisos = new ArrayList<>();
+        if (anioDesde != null && anioHasta != null && anioHasta < anioDesde) {
+            avisos.add("El año \"hasta\" no puede ser anterior al año \"desde\".");
+            anioDesde = null;
+            anioHasta = null;
+        }
+        if (precioMin != null && precioMax != null && precioMax.compareTo(precioMin) < 0) {
+            avisos.add("El precio máximo no puede ser menor que el precio mínimo.");
+            precioMin = null;
+            precioMax = null;
+        }
+        if (!avisos.isEmpty()) model.addAttribute("error", String.join(" ", avisos));
         FiltroVehiculos filtro =
                 new FiltroVehiculos(
                         texto, tipo, estado, anioDesde, anioHasta, precioMin, precioMax, orden, bajas);

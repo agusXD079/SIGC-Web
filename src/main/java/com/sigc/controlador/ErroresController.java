@@ -1,5 +1,6 @@
 package com.sigc.controlador;
 
+import com.sigc.dominio.RegistroNoEncontradoException;
 import com.sigc.dominio.ReglaNegocioException;
 import com.sigc.servicio.PersistenciaException;
 
@@ -17,7 +18,16 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class ErroresController {
     private static final Logger LOG = LoggerFactory.getLogger(ErroresController.class);
 
-    /** Regla de negocio incumplida o registro inexistente. */
+    /** Registro inexistente (por ejemplo /vehiculos/999999): pagina de error con HTTP 404. */
+    @ExceptionHandler(RegistroNoEncontradoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String noEncontrado(RegistroNoEncontradoException ex, Model model) {
+        model.addAttribute("titulo", "Registro no encontrado");
+        model.addAttribute("mensaje", ex.getMessage());
+        return "error";
+    }
+
+    /** Regla de negocio incumplida. */
     @ExceptionHandler(ReglaNegocioException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String regla(ReglaNegocioException ex, Model model) {

@@ -75,4 +75,14 @@ Entorno: Windows 11, JDK 17.0.21 (Temurin), Maven 3.9.11, MySQL 8.4.13. Detalle 
 | Fusión a `main` | Esta rama no se fusionó. Revisar y abrir el *pull request* |
 | Guía de defensa | Completar la tabla "Participación de cada integrante" en `docs/GUIA_DEFENSA.md` |
 | Pruebas manuales | Impresión del comprobante y venta del mismo vehículo desde dos pestañas (este último caso sí está cubierto por una prueba automática) |
-| Observaciones menores, sin corregir | Un registro inexistente (por ejemplo `/vehiculos/999999`) responde 400 con página de error clara, no 404; un rango de años invertido en el filtro de vehículos devuelve la lista vacía sin mensaje. No incumplen la consigna |
+| Observaciones menores | Corregidas el 17/11/2026: ver la sección "Correcciones del 17/11/2026" |
+
+## Correcciones del 17/11/2026 (auditoría final)
+
+| Problema | Corrección | Archivos |
+|---|---|---|
+| **Fallo intermitente en test drives.** La prueba de integración `testDriveBloqueaLaVentaYAlFinalizarVuelveADisponible` fallaba en 3 de cada 7 corridas con "La finalización no puede ser anterior al inicio". La hora se calculaba con milisegundos y MySQL la redondea al segundo al guardarla en una columna `DATETIME` (10:00:00.700 queda como 10:00:01); al finalizar enseguida, la finalización resultaba "anterior" al inicio | El reloj de negocio tiene precisión de segundos (`Clock.tickSeconds`), de modo que lo que se guarda es exactamente lo que se calculó. Sin cambios en el esquema | `configuracion/Configuracion.java`; prueba nueva `ConfiguracionTest` |
+| **Registros inexistentes respondían 400.** `/vehiculos/999999`, `/clientes/999999`, etc. | Nueva `RegistroNoEncontradoException` (subclase de `ReglaNegocioException`), lanzada por `RepositorioJdo.porId` y traducida a **404** con la página de error. Los formularios siguen mostrando el mismo mensaje | `dominio/RegistroNoEncontradoException.java`, `repositorio/RepositorioJdo.java`, `controlador/ErroresController.java`; prueba nueva `ErroresControllerTest` |
+| **Rangos invertidos en el filtro de vehículos.** Año "hasta" menor que "desde" o precio máximo menor que el mínimo devolvían la lista vacía sin explicación | Se muestra un mensaje de error y se ignora ese rango, igual que en ventas y reportes | `controlador/VehiculoController.java` |
+
+Pruebas después de las correcciones: `mvn -Pmysql-it clean verify` con **44 pruebas unitarias y 7 de integración, todas correctas**; la integración se repitió 18 veces más sin ningún fallo. Con la aplicación en marcha, el recorrido HTTP dio 104 comprobaciones correctas, los registros inexistentes respondieron 404 y los filtros con rangos invertidos mostraron su aviso. Sin excepciones en el log.
