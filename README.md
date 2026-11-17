@@ -1,6 +1,6 @@
 # SIGC · Sistema Integral de Gestión de Concesionaria
 
-Trabajo Práctico de Programación 2 · IFES · Análisis de Sistemas
+Proyecto integrador de Programación II · IFES · Análisis de Sistemas
 
 **Integrantes:** Thiago Vecchi, Franco Araneda, Tiago Silenzi y Luz Araneda.
 
