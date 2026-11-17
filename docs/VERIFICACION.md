@@ -2,6 +2,12 @@
 
 Este documento registra qué se comprobó realmente. No se informa ningún resultado que no se haya obtenido.
 
+## Verificación del 17/11/2026 (mismo entorno)
+
+- `mvn -Pmysql-it clean verify`: 44 pruebas unitarias y 7 de integración correctas; la integración se repitió 18 veces más sin fallos (antes del cambio del reloj fallaba en 3 de 7 corridas).
+- Aplicación en marcha: recorrido HTTP de 104 comprobaciones correctas; `/vehiculos/999999`, `/clientes/999999`, `/vendedores/999999` y `/ventas/999999` responden 404 con mensaje claro; los filtros de vehículos con rango de años o de precios invertido muestran su aviso.
+- Igual que el 16/11, se usó la instancia temporal de MySQL 8.4.13 en el puerto 3307; la base `sigc` real del equipo no se tocó.
+
 ## Verificación del 16/11/2026 (Windows 11, JDK 17.0.21, Maven 3.9.11, MySQL 8.4.13)
 
 Entorno: el equipo de desarrollo con Windows 11. Para no depender de la contraseña del servidor MySQL instalado (que no está guardada en ningún archivo ni variable), se usó una **instancia aparte de MySQL 8.4.13** creada solo para la verificación con los mismos binarios (`mysqld --initialize-insecure`, puerto 3307, carpeta temporal). La base `sigc` del servidor instalado (puerto 3306) no se tocó.

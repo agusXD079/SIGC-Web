@@ -1,6 +1,6 @@
 package com.sigc.repositorio;
 
-import com.sigc.dominio.ReglaNegocioException;
+import com.sigc.dominio.RegistroNoEncontradoException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +32,11 @@ public class RepositorioJdo<T> implements IRepositorio<T> {
 
     @Override
     public T porId(PersistenceManager pm, long id) {
-        if (id <= 0) throw new ReglaNegocioException("La identidad solicitada no es válida.");
+        if (id <= 0) throw new RegistroNoEncontradoException("La identidad solicitada no es válida.");
         try {
             return pm.getObjectById(clase, id);
         } catch (JDOObjectNotFoundException ex) {
-            throw new ReglaNegocioException("No se encontró el registro solicitado.");
+            throw new RegistroNoEncontradoException("No se encontró el registro solicitado.");
         }
     }
 

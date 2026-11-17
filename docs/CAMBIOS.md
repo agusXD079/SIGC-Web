@@ -1,3 +1,12 @@
+# Cambios de la revisión 4 (17/11/2026)
+
+| Archivo | Corrección |
+|---|---|
+| `configuracion/Configuracion.java` | Reloj de negocio con precisión de segundos: MySQL redondeaba los milisegundos y un test drive finalizado enseguida quedaba "anterior al inicio" (fallo intermitente de la prueba de integración). |
+| `dominio/RegistroNoEncontradoException.java` (nuevo), `repositorio/RepositorioJdo.java`, `controlador/ErroresController.java` | Los registros inexistentes responden HTTP 404 en lugar de 400. |
+| `controlador/VehiculoController.java` | Aviso cuando el rango de años o de precios del filtro está invertido. |
+| Pruebas nuevas | `ConfiguracionTest`, `ErroresControllerTest`. |
+
 # Cambios de la revisión 3 (16/11/2026)
 
 | Archivo | Corrección |

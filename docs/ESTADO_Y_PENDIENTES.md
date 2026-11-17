@@ -14,7 +14,7 @@
 
 | Tema | Pendiente |
 |---|---|
-| Ejecución | **Hecho (16/11/2026).** En Windows 11 con JDK 17 y MySQL 8.4.13, `mvn clean verify` y `mvn -Pmysql-it verify` pasan (41 + 7 pruebas) y la aplicación se recorrió en ejecución (ver VERIFICACION.md). Se probó contra una instancia local de MySQL 8.4 creada para la verificación; falta arrancarla una vez contra la base `sigc` definitiva del equipo de la defensa |
+| Ejecución | **Hecho (16/11/2026).** En Windows 11 con JDK 17 y MySQL 8.4.13, `mvn clean verify` y `mvn -Pmysql-it verify` pasan (44 + 7 pruebas desde el 17/11/2026) y la aplicación se recorrió en ejecución (ver VERIFICACION.md). Se probó contra una instancia local de MySQL 8.4 creada para la verificación; falta arrancarla una vez contra la base `sigc` definitiva del equipo de la defensa |
 | Pruebas | No hay pruebas unitarias de los servicios con base simulada; la cobertura de servicios depende de la integración con MySQL |
 | Reportes | Sin exportación a PDF/CSV: se imprime desde el navegador |
 | Ventas | No se pueden anular ventas ni editar una venta registrada (decisión: evita inconsistencias; confirmar si la consigna lo pide) |
